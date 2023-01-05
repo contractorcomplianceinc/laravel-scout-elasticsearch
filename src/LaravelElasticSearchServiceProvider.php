@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Matchish\ScoutElasticSearch;
 
-use Matchish\ScoutElasticSearch\ScoutElasticSearchServiceProvider;
+use Illuminate\Support\ServiceProvider;
 
 final class LaravelElasticSearchServiceProvider extends ServiceProvider
 {
