@@ -6,6 +6,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## [Unreleased]
 
+## [6.0.2] - 2022-06-16
+### Added
+- Elasticsearch basic authentication support
+- Elasticsearch CloudId and Api Key credential support
+
+## [6.0.1] - 2022-06-09
+### Added
+- LazyMap implemented for ElasticsearchEngine
+
+## [6.0.0] - 2022-04-30
+### Added
+- Elasticsearch 8 Support
+
+## [5.0.2] - 2022-03-24
+### Added
+-  multiple ElasticSearch nodes support
+
+## [5.0.1] - 2021-07-23
+### Added
+- whereIn filter support
+
+## [5.0.0] - 2021-05-13
+### Added
+-  PHP 8 Support
+-  Laravel Scout 9 Support
+
 ## [4.0.10] - 2021-08-01
 ### Fixed
 -  Avoid ambiguous In Some Cases

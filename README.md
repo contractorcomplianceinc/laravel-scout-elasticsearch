@@ -9,16 +9,14 @@
   <img alt="Import progress report" src="https://raw.githubusercontent.com/matchish/laravel-scout-elasticsearch/master/docs/demo.gif" >
 
   <p align="center">
-    <a href="https://travis-ci.com/matchish/laravel-scout-elasticsearch"><img src="https://img.shields.io/travis/com/matchish/laravel-scout-elasticsearch/master.svg" alt="Build Status"></img></a>
-    <a href="https://scrutinizer-ci.com/g/matchish/laravel-scout-elasticsearch"><img alt="Code quality" src="https://img.shields.io/scrutinizer/g/matchish/laravel-scout-elasticsearch.svg?label=quality"></img></a>
-    <a href="https://scrutinizer-ci.com/g/matchish/laravel-scout-elasticsearch"><img src="https://img.shields.io/scrutinizer/coverage/g/matchish/laravel-scout-elasticsearch.svg" alt="Coverage"></img></a>
+    <a href="#"><img src="https://github.com/matchish/laravel-scout-elasticsearch/actions/workflows/test-application.yaml/badge.svg" alt="Build Status"></img></a>
+    <a href="https://app.codecov.io/gh/matchish/laravel-scout-elasticsearch"><img src="https://codecov.io/gh/matchish/laravel-scout-elasticsearch/branch/coverage-badge/graph/badge.svg" alt="Coverage"></img></a>
     <a href="https://packagist.org/packages/matchish/laravel-scout-elasticsearch"><img src="https://poser.pugx.org/matchish/laravel-scout-elasticsearch/d/total.svg" alt="Total Downloads"></a>
     <a href="https://packagist.org/packages/matchish/laravel-scout-elasticsearch"><img src="https://poser.pugx.org/matchish/laravel-scout-elasticsearch/v/stable.svg" alt="Latest Version"></a>
     <a href="https://packagist.org/packages/matchish/laravel-scout-elasticsearch"><img src="https://poser.pugx.org/matchish/laravel-scout-elasticsearch/license.svg" alt="License"></a>
   </p>
 </p>
 
-#### For PHP8 support use [php8](https://github.com/matchish/laravel-scout-elasticsearch/tree/php8) branch  
 #### For Laravel Framework < 6.0.0 use [3.x](https://github.com/matchish/laravel-scout-elasticsearch/tree/3.x) branch
 
 The package provides the perfect starting point to integrate
@@ -34,7 +32,8 @@ If you need any help, [stack overflow](https://stackoverflow.com/questions/tagge
 ## :two_hearts: Features  
 Don't forget to :star: the package if you like it. :pray:
 
-- Laravel Scout 8.x support
+- Laravel Scout 9.x support
+- Laravel Nova support
 - [Search amongst multiple models](#search-amongst-multiple-models)
 - [**Zero downtime** reimport](#zero-downtime-reimport) - it’s a breeze to import data in production.
 - [Eager load relations](#eager-load) - speed up your import.
@@ -44,13 +43,14 @@ Don't forget to :star: the package if you like it. :pray:
 
 ## :warning: Requirements
 
-- PHP version >= 7.3
-- Laravel Framework version >= 6.0.0
+- PHP version >= 8.0
+- Laravel Framework version >= 8.0.0
 
-| Elasticsearch version | ElasticsearchDSL version    |
-| --------------------- | --------------------------- |
-| >= 7.0                | >= 3.0.0                    |
-| >= 6.0, < 7.0         | < 3.0.0                     |
+| Elasticsearch version | ElasticsearchDSL version |
+|-----------------------|--------------------------|
+| >= 8.0                | >= 8.0.0                 |
+| >= 7.0                | >= 3.0.0                 |
+| >= 6.0, < 7.0         | < 3.0.0                  |
 
 ## :rocket: Installation
 
@@ -78,6 +78,10 @@ Register the provider, adding to `config/app.php`
 Set `ELASTICSEARCH_HOST` env variable
 ```
 ELASTICSEARCH_HOST=host:port
+```
+or use commas as separator for additional nodes
+```
+ELASTICSEARCH_HOST=host:port,host:port
 ```
 And publish config example for elasticsearch  
 `php artisan vendor:publish --tag config`
@@ -146,6 +150,36 @@ class WithCommentsScope implements Scope {
     }
 }
 ```
+
+You can also customize your indexed data when you save models by leveraging the [`toSearchableArray`](https://laravel.com/docs/9.x/scout#configuring-searchable-data) method
+provided by Laravel Scout through the `Searchable` trait
+
+#### Example:
+```php
+class Product extends Model 
+{
+    use Searchable;
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        $with = [
+            'categories',
+        ];
+
+        $this->loadMissing($with);
+
+        return $this->toArray();
+    }
+}
+```
+
+This example will make sure the categories relationship gets always loaded on the model when 
+saving it.
 ### Zero downtime reimport
 While working in production, to keep your existing search experience available while reimporting your data, you also can use `scout:import` Artisan command:  
 
@@ -181,7 +215,7 @@ $results = Product::search('zonga', function($client, $body) {
     $body->addAggregation($minPriceAggregation);
     $body->addAggregation($brandTermAggregation);
     
-    return $client->search(['index' => 'products', 'body' => $body->toArray()]);
+    return $client->search(['index' => 'products', 'body' => $body->toArray()])->asArray();
 })->raw();
 ```
 
@@ -189,9 +223,9 @@ $results = Product::search('zonga', function($client, $body) {
  And `$body` is `ONGR\ElasticsearchDSL\Search` from [ongr/elasticsearch-dsl](https://packagist.org/packages/ongr/elasticsearch-dsl) package  
 
 ### Search amongst multiple models
-You can do it with `Mixed` class, just pass indices names separated by commas to the `within` method.
+You can do it with `MixedSearch` class, just pass indices names separated by commas to the `within` method.
 ```php
-Mixed::search('title:Barcelona or to:Barcelona')
+MixedSearch::search('title:Barcelona or to:Barcelona')
     within(implode(',', [
         (new Ticket())->searchableAs(),
         (new Book())->searchableAs(),
