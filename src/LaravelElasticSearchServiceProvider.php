@@ -4,7 +4,16 @@ declare(strict_types=1);
 
 namespace Matchish\ScoutElasticSearch;
 
+use Elastic\Elasticsearch\Client;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Scout\Builder;
+use Laravel\Scout\EngineManager;
+use Laravel\Scout\ScoutServiceProvider;
+use Matchish\ScoutElasticSearch\Console\Commands\FlushCommand;
+use Matchish\ScoutElasticSearch\Console\Commands\ImportCommand;
+use Matchish\ScoutElasticSearch\Engines\ElasticSearchEngine;
+use Matchish\ScoutElasticSearch\Searchable\DefaultImportSourceFactory;
+use Matchish\ScoutElasticSearch\Searchable\ImportSourceFactory;
 
 final class LaravelElasticSearchServiceProvider extends ServiceProvider
 {
