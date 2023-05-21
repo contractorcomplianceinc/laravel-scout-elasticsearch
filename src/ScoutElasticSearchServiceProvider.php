@@ -6,6 +6,7 @@ namespace Matchish\ScoutElasticSearch;
 
 use Elasticsearch\Client;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Scout\Builder;
 use Laravel\Scout\EngineManager;
 use Laravel\Scout\ScoutServiceProvider;
 use Matchish\ScoutElasticSearch\Console\Commands\FlushCommand;
